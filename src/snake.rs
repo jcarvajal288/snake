@@ -120,11 +120,13 @@ pub fn change_direction_system(
 
 pub fn collision_system(
     mut head_query: Query<&mut SnakeHead>,
+    mut tail_query: Query<&mut SnakeTail>,
     level_map: Res<LevelMap>,
     mut next_state: ResMut<NextState<GameState>>
 ) {
     let mut head = head_query.single_mut();
-    if !level_map.is_position_walkable(&head.position) {
+    let tail_segments: Vec<Position> = tail_query.iter().map(|entity| entity.position).collect();
+    if !level_map.is_position_walkable(&head.position) || tail_segments.contains(&head.position) {
         next_state.set(GameState::DEFEAT);
     }
 }

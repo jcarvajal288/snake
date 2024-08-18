@@ -33,7 +33,7 @@ fn main() {
             }),
             ..default()
         }))
-        .insert_resource(Time::<Fixed>::from_duration(Duration::from_millis(500)))
+        .insert_resource(Time::<Fixed>::from_duration(Duration::from_millis(300)))
         .insert_resource(Images::default())
         .insert_resource(level_map::load_level_1())
         .init_state::<GameState>()
