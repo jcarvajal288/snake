@@ -71,14 +71,13 @@ pub fn snake_movement_system(
     mut head_query: Query<(&mut SnakeHead, &mut Transform)>,
     mut tail_query: Query<(&mut SnakeTail, &mut Transform), Without<SnakeHead>>,
     windows: Query<&Window>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
 
     let (mut head, mut head_transform) = head_query.single_mut();
     let old_head_position = head.position;
     if old_head_position.col > 0 && old_head_position.line > 0 {
-        head = move_head_position(keyboard_input, head);
+        head = move_head_position(head);
         head_transform.translation = transform_from_position(&head.position, window_center, 1.0).translation;
 
         let mut next_position = old_head_position;
@@ -91,7 +90,21 @@ pub fn snake_movement_system(
     }
 }
 
-fn move_head_position<'a>(keyboard_input: Res<'a, ButtonInput<KeyCode>>, mut head: Mut<'a, SnakeHead>) -> Mut<'a, SnakeHead> {
+fn move_head_position(mut head: Mut<SnakeHead>) -> Mut<SnakeHead> {
+    head.position = match head.direction {
+        LEFT => Position { col: head.position.col - 1, line: head.position.line },
+        RIGHT => Position { col: head.position.col + 1, line: head.position.line },
+        UP => Position { col: head.position.col, line: head.position.line - 1 },
+        DOWN => Position { col: head.position.col, line: head.position.line + 1},
+    };
+    return head;
+}
+
+pub fn change_direction_system(
+    mut head_query: Query<&mut SnakeHead>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+) {
+    let mut head = head_query.single_mut();
     if keyboard_input.pressed(KeyCode::ArrowLeft) {
         head.direction = LEFT;
     } else if keyboard_input.pressed(KeyCode::ArrowRight) {
@@ -101,13 +114,4 @@ fn move_head_position<'a>(keyboard_input: Res<'a, ButtonInput<KeyCode>>, mut hea
     } else if keyboard_input.pressed(KeyCode::ArrowDown) {
         head.direction = DOWN;
     }
-
-    head.position = match head.direction {
-        LEFT => Position { col: head.position.col - 1, line: head.position.line },
-        RIGHT => Position { col: head.position.col + 1, line: head.position.line },
-        UP => Position { col: head.position.col, line: head.position.line - 1 },
-        DOWN => Position { col: head.position.col, line: head.position.line + 1},
-    };
-
-    return head;
 }
