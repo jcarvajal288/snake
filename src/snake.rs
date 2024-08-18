@@ -153,6 +153,7 @@ pub fn eating_system(
         let snake_tail = [
             initial_snake_tail(Position { col: tail.position.col, line: tail.position.line }),
             initial_snake_tail(Position { col: tail.position.col, line: tail.position.line }),
+            initial_snake_tail(Position { col: tail.position.col, line: tail.position.line }),
         ];
         let snake_tail_entities = snake_tail.map(|segment| {
             return commands.spawn((
