@@ -1,6 +1,6 @@
 use bevy::asset::Handle;
 use bevy::asset::ron::de::Position;
-use bevy::prelude::{Commands, Image, Res, Resource, Transform, Vec2};
+use bevy::prelude::{Commands, Component, Image, Res, Resource, Transform, Vec2};
 use bevy::sprite::SpriteBundle;
 use bevy::utils::default;
 
@@ -16,6 +16,11 @@ pub const TILE_SIZE: f32 = 32.0;
 pub enum Tile {
     WALL,
     FLOOR,
+}
+
+#[derive(Component)]
+pub struct Apple {
+    pub position: Position
 }
 
 #[derive(Resource)]
@@ -45,9 +50,10 @@ impl LevelMap {
     }
 
     pub fn is_position_walkable(&self, position: &Position) -> bool {
-        return match self.grid.get(position.line).unwrap().get(position.col).unwrap() {
-            Tile::FLOOR => true,
-            _ => false
+        return match self.grid.get(position.line).unwrap_or(&vec!(Tile::WALL))
+            .get(position.col).unwrap_or(&Tile::WALL) {
+                Tile::FLOOR => true,
+                _ => false
         }
     }
 }

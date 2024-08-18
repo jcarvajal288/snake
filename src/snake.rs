@@ -1,11 +1,11 @@
 use bevy::input::ButtonInput;
 use bevy::math::Vec2;
-use bevy::prelude::{Commands, Component, default, KeyCode, Mut, Query, Res, SpriteBundle, Transform, Window, Without};
+use bevy::prelude::{Commands, Component, default, KeyCode, Mut, NextState, Query, Res, ResMut, SpriteBundle, State, Transform, Window, Without};
 use bevy::scene::ron::de::Position;
 
 use crate::images::Images;
-use crate::level1;
-use crate::level_map::transform_from_position;
+use crate::{GameState, level1};
+use crate::level_map::{LevelMap, transform_from_position};
 use crate::snake::Direction::{DOWN, LEFT, RIGHT, UP};
 
 enum Direction {
@@ -113,5 +113,16 @@ pub fn change_direction_system(
         head.direction = UP;
     } else if keyboard_input.pressed(KeyCode::ArrowDown) {
         head.direction = DOWN;
+    }
+}
+
+pub fn collision_system(
+    mut head_query: Query<&mut SnakeHead>,
+    level_map: Res<LevelMap>,
+    mut next_state: ResMut<NextState<GameState>>
+) {
+    let mut head = head_query.single_mut();
+    if !level_map.is_position_walkable(&head.position) {
+        next_state.set(GameState::DEFEAT);
     }
 }
