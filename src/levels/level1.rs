@@ -24,7 +24,7 @@ pub const MAP_DATA: &str = "#######################\n\
                             #.....................#\n\
                             #######################";
 
-pub const PLAYER1_STARTING_POSITION: Position = Position {
-    line: 10,
-    col: 12,
+pub const STARTING_POSITION: Position = Position {
+    line: 11,
+    col: 11,
 };

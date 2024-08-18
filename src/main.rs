@@ -1,5 +1,7 @@
 mod images;
 mod level_map;
+mod snake;
+#[path = "levels/level1.rs"] mod level1;
 
 use bevy::DefaultPlugins;
 use bevy::math::Vec2;
@@ -7,6 +9,7 @@ use bevy::prelude::{App, Camera2dBundle, ClearColor, Commands, default, IntoSyst
 use bevy::window::{WindowPlugin, WindowResolution};
 use crate::images::{Images, load_images};
 use crate::level_map::LevelMap;
+use crate::snake::Snake;
 
 fn main() {
     App::new()
@@ -28,16 +31,16 @@ fn setup(mut commands: Commands, level_map: Res<LevelMap>, images: Res<Images>, 
 
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
 
-    // commands.spawn((
-    //     SpriteBundle {
-    //         texture: images.player1.clone(),
-    //         transform: level_map::transform_from_position(&level1::PLAYER1_STARTING_POSITION, window_center, 1.0),
-    //         ..default()
-    //     },
-    //     Player {
-    //         position: level1::PLAYER1_STARTING_POSITION,
-    //     }
-    // ));
+    commands.spawn((
+        SpriteBundle {
+            texture: images.snake_head.clone(),
+            transform: level_map::transform_from_position(&level1::STARTING_POSITION, window_center, 1.0),
+            ..default()
+        },
+        Snake {
+            positions: vec![level1::STARTING_POSITION],
+        }
+    ));
 
     level_map.draw(commands, &images, window_center);
 }
