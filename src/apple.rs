@@ -19,7 +19,7 @@ pub fn spawn_apple(
     mut head_query: Query<&mut SnakeHead>,
     tail_query: Query<&mut SnakeTail>,
 ) {
-    let apple_position = find_open_position(level_map, &mut head_query, tail_query);
+    let apple_position = find_open_position(level_map, &mut head_query, &tail_query);
 
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
     commands.spawn((
@@ -35,7 +35,7 @@ pub fn spawn_apple(
     ));
 }
 
-pub fn find_open_position(level_map: Res<LevelMap>, head_query: &mut Query<&mut SnakeHead>, tail_query: Query<&mut SnakeTail>) -> Position {
+pub fn find_open_position(level_map: Res<LevelMap>, head_query: &mut Query<&mut SnakeHead>, tail_query: &Query<&mut SnakeTail>) -> Position {
     let head_position = head_query.single_mut().position;
     let mut all_snake_positions: Vec<Position> = tail_query.iter()
         .map(|segment| { return segment.position })

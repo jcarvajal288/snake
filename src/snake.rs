@@ -27,7 +27,7 @@ pub struct SnakeHead {
 pub fn initial_snake_head(position: Position) -> SnakeHead {
     return SnakeHead {
         position,
-        direction: Direction::UP,
+        direction: UP,
     }
 }
 
@@ -130,6 +130,8 @@ pub fn collision_system(
 }
 
 pub fn eating_system(
+    mut commands: Commands,
+    images: Res<Images>,
     mut head_query: Query<&mut SnakeHead>,
     tail_query: Query<&mut SnakeTail>,
     mut apple_query: Query<(&mut Apple, &mut Transform), Without<SnakeHead>>,
@@ -140,8 +142,25 @@ pub fn eating_system(
     let mut head = head_query.single_mut();
     let (mut apple, mut apple_transform) = apple_query.single_mut();
     if head.position == apple.position {
-        let new_apple_position = find_open_position(level_map, &mut head_query, tail_query);
+        let new_apple_position = find_open_position(level_map, &mut head_query, &tail_query);
         apple_transform.translation = transform_from_position(&new_apple_position, window_center, 0.5).translation;
         apple.position = new_apple_position;
+
+        let tails: Vec<&SnakeTail> = tail_query.iter().map(|entity| entity).collect();
+        let tail = tails.get(0).unwrap();
+        let snake_tail = [
+            initial_snake_tail(Position { col: tail.position.col, line: tail.position.line }),
+            initial_snake_tail(Position { col: tail.position.col, line: tail.position.line }),
+        ];
+        let snake_tail_entities = snake_tail.map(|segment| {
+            return commands.spawn((
+                SpriteBundle {
+                    texture: images.snake_tail.clone(),
+                    transform: transform_from_position(&segment.position, window_center, 1.0),
+                    ..default()
+                },
+                segment
+            )).id();
+        });
     }
 }
