@@ -1,6 +1,6 @@
 use bevy::asset::Handle;
 use bevy::asset::ron::de::Position;
-use bevy::prelude::{Commands, Component, Image, Res, Resource, Transform, Vec2};
+use bevy::prelude::{Commands, Image, Res, Resource, Transform, Vec2};
 use bevy::sprite::SpriteBundle;
 use bevy::utils::default;
 

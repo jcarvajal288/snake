@@ -1,3 +1,4 @@
+use std::cmp::PartialEq;
 use bevy::input::ButtonInput;
 use bevy::math::Vec2;
 use bevy::prelude::{Commands, Component, default, KeyCode, Mut, NextState, Query, Res, ResMut, SpriteBundle, Transform, Window, Without};
@@ -9,6 +10,7 @@ use crate::apple::{Apple, find_open_position};
 use crate::level_map::{LevelMap, transform_from_position};
 use crate::snake::Direction::{DOWN, LEFT, RIGHT, UP};
 
+#[derive(PartialEq)]
 enum Direction {
     LEFT,
     RIGHT,
@@ -32,21 +34,19 @@ pub fn initial_snake_head(position: Position) -> SnakeHead {
 #[derive(Component)]
 pub struct SnakeTail {
     pub position: Position,
-    pub order: usize
 }
 
-pub fn initial_snake_tail(position: Position, order: usize) -> SnakeTail {
+pub fn initial_snake_tail(position: Position) -> SnakeTail {
     return SnakeTail {
         position,
-        order
     }
 }
 
 pub fn spawn_snake(mut commands: &mut Commands, images: &Res<Images>, window_center: Vec2) {
     let start = level1::STARTING_POSITION;
     let snake_tail = [
-        initial_snake_tail(Position { col: start.col, line: start.line + 1 }, 0),
-        initial_snake_tail(Position { col: start.col, line: start.line + 2 }, 1),
+        initial_snake_tail(Position { col: start.col, line: start.line + 1 }),
+        initial_snake_tail(Position { col: start.col, line: start.line + 2 }),
     ];
     commands.spawn((
         SpriteBundle {
@@ -106,13 +106,14 @@ pub fn change_direction_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     let mut head = head_query.single_mut();
-    if keyboard_input.pressed(KeyCode::ArrowLeft) {
+    let current_direction = &head.direction;
+    if keyboard_input.pressed(KeyCode::ArrowLeft) && !matches!(current_direction, RIGHT) {
         head.direction = LEFT;
-    } else if keyboard_input.pressed(KeyCode::ArrowRight) {
+    } else if keyboard_input.pressed(KeyCode::ArrowRight) && !matches!(current_direction, LEFT) {
         head.direction = RIGHT;
-    } else if keyboard_input.pressed(KeyCode::ArrowUp) {
+    } else if keyboard_input.pressed(KeyCode::ArrowUp) && !matches!(current_direction, DOWN) {
         head.direction = UP;
-    } else if keyboard_input.pressed(KeyCode::ArrowDown) {
+    } else if keyboard_input.pressed(KeyCode::ArrowDown) && !matches!(current_direction, UP) {
         head.direction = DOWN;
     }
 }
@@ -138,7 +139,7 @@ pub fn eating_system(
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
     let mut head = head_query.single_mut();
     let (mut apple, mut apple_transform) = apple_query.single_mut();
-    if(head.position == apple.position) {
+    if head.position == apple.position {
         let new_apple_position = find_open_position(level_map, &mut head_query, tail_query);
         apple_transform.translation = transform_from_position(&new_apple_position, window_center, 0.5).translation;
         apple.position = new_apple_position;

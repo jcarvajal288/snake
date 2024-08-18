@@ -1,8 +1,8 @@
-use bevy::prelude::{Commands, Component, default, Query, Res, SpriteBundle, Window, Without};
 use bevy::asset::ron::de::Position;
 use bevy::math::Vec2;
-use bevy::tasks::futures_lite::StreamExt;
+use bevy::prelude::{Commands, Component, default, Query, Res, SpriteBundle, Window};
 use rand::Rng;
+
 use crate::images::Images;
 use crate::level_map::{LevelMap, transform_from_position};
 use crate::snake::{SnakeHead, SnakeTail};

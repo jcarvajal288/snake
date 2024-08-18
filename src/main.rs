@@ -1,22 +1,21 @@
+use std::time::Duration;
+
+use bevy::app::FixedUpdate;
+use bevy::DefaultPlugins;
+use bevy::math::Vec2;
+use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, in_state, IntoSystemConfigs, PluginGroup, Query, Res, Startup, States, Time, Update, Window};
+use bevy::time::Fixed;
+use bevy::window::{WindowPlugin, WindowResolution};
+use rand::Rng;
+
+use crate::images::{Images, load_images};
+use crate::level_map::LevelMap;
+
 mod images;
 mod level_map;
 mod snake;
 #[path = "levels/level1.rs"] mod level1;
 mod apple;
-
-use std::time::Duration;
-use bevy::app::FixedUpdate;
-use bevy::asset::ron::de::Position;
-use bevy::DefaultPlugins;
-use bevy::math::Vec2;
-use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, in_state, IntoSystemConfigs, PluginGroup, Query, Res, SpriteBundle, Startup, States, Time, Update, Window};
-use bevy::time::Fixed;
-use bevy::window::{WindowPlugin, WindowResolution};
-use rand::Rng;
-use apple::Apple;
-use crate::images::{Images, load_images};
-use crate::level_map::{LevelMap, transform_from_position};
-use crate::snake::{SnakeHead, SnakeTail};
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum GameState {
