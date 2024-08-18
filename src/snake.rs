@@ -1,10 +1,11 @@
 use bevy::input::ButtonInput;
 use bevy::math::Vec2;
-use bevy::prelude::{Commands, Component, default, KeyCode, Mut, NextState, Query, Res, ResMut, SpriteBundle, State, Transform, Window, Without};
+use bevy::prelude::{Commands, Component, default, KeyCode, Mut, NextState, Query, Res, ResMut, SpriteBundle, Transform, Window, Without};
 use bevy::scene::ron::de::Position;
 
 use crate::images::Images;
 use crate::{GameState, level1};
+use crate::apple::{Apple, find_open_position};
 use crate::level_map::{LevelMap, transform_from_position};
 use crate::snake::Direction::{DOWN, LEFT, RIGHT, UP};
 
@@ -124,5 +125,22 @@ pub fn collision_system(
     let mut head = head_query.single_mut();
     if !level_map.is_position_walkable(&head.position) {
         next_state.set(GameState::DEFEAT);
+    }
+}
+
+pub fn eating_system(
+    mut head_query: Query<&mut SnakeHead>,
+    tail_query: Query<&mut SnakeTail>,
+    mut apple_query: Query<(&mut Apple, &mut Transform), Without<SnakeHead>>,
+    level_map: Res<LevelMap>,
+    windows: Query<&Window>,
+) {
+    let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
+    let mut head = head_query.single_mut();
+    let (mut apple, mut apple_transform) = apple_query.single_mut();
+    if(head.position == apple.position) {
+        let new_apple_position = find_open_position(level_map, &mut head_query, tail_query);
+        apple_transform.translation = transform_from_position(&new_apple_position, window_center, 0.5).translation;
+        apple.position = new_apple_position;
     }
 }

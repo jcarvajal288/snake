@@ -18,11 +18,6 @@ pub enum Tile {
     FLOOR,
 }
 
-#[derive(Component)]
-pub struct Apple {
-    pub position: Position
-}
-
 #[derive(Resource)]
 pub struct LevelMap {
     pub grid: Vec<Vec<Tile>>
