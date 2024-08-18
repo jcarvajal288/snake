@@ -6,6 +6,7 @@ use bevy::math::Vec2;
 use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, in_state, IntoSystemConfigs, PluginGroup, Query, Res, Startup, States, Time, Update, Window};
 use bevy::time::Fixed;
 use bevy::window::{WindowPlugin, WindowResolution};
+use bevy_embedded_assets::EmbeddedAssetPlugin;
 use rand::Rng;
 
 use crate::images::{Images, load_images};
@@ -33,6 +34,7 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(EmbeddedAssetPlugin::default())
         .insert_resource(Time::<Fixed>::from_duration(Duration::from_millis(300)))
         .insert_resource(Images::default())
         .insert_resource(level_map::load_level_1())
