@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use bevy::asset::ron::de::Position;
 
 pub const MAP_DATA: &str = "#######################\n\

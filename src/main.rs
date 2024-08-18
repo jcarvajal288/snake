@@ -5,11 +5,10 @@ mod snake;
 
 use bevy::DefaultPlugins;
 use bevy::math::Vec2;
-use bevy::prelude::{App, Camera2dBundle, ClearColor, Commands, default, IntoSystemConfigs, PluginGroup, Query, Res, ResMut, SpriteBundle, Startup, Window};
+use bevy::prelude::{App, BuildChildren, Camera2dBundle, Commands, default, IntoSystemConfigs, PluginGroup, Query, Res, Startup, Window};
 use bevy::window::{WindowPlugin, WindowResolution};
 use crate::images::{Images, load_images};
 use crate::level_map::LevelMap;
-use crate::snake::Snake;
 
 fn main() {
     App::new()
@@ -31,16 +30,8 @@ fn setup(mut commands: Commands, level_map: Res<LevelMap>, images: Res<Images>, 
 
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
 
-    commands.spawn((
-        SpriteBundle {
-            texture: images.snake_head.clone(),
-            transform: level_map::transform_from_position(&level1::STARTING_POSITION, window_center, 1.0),
-            ..default()
-        },
-        Snake {
-            positions: vec![level1::STARTING_POSITION],
-        }
-    ));
+    snake::spawn_snake(&mut commands, &images, window_center);
 
     level_map.draw(commands, &images, window_center);
 }
+
