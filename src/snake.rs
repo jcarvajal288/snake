@@ -1,19 +1,30 @@
-use bevy::prelude::{Commands, Component, default, Query, Res, SpriteBundle, Transform, Window, Without};
-use bevy::scene::ron::de::Position;
+use bevy::input::ButtonInput;
 use bevy::math::Vec2;
-use bevy::hierarchy::BuildChildren;
+use bevy::prelude::{Commands, Component, default, KeyCode, Mut, Query, Res, SpriteBundle, Transform, Window, Without};
+use bevy::scene::ron::de::Position;
+
 use crate::images::Images;
-use crate::{level1, level_map};
+use crate::level1;
 use crate::level_map::transform_from_position;
+use crate::snake::Direction::{DOWN, LEFT, RIGHT, UP};
+
+enum Direction {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+}
 
 #[derive(Component)]
 pub struct SnakeHead {
     pub position: Position,
+    pub direction: Direction,
 }
 
 pub fn initial_snake_head(position: Position) -> SnakeHead {
     return SnakeHead {
-        position
+        position,
+        direction: Direction::UP,
     }
 }
 
@@ -59,14 +70,15 @@ pub fn spawn_snake(mut commands: &mut Commands, images: &Res<Images>, window_cen
 pub fn snake_movement_system(
     mut head_query: Query<(&mut SnakeHead, &mut Transform)>,
     mut tail_query: Query<(&mut SnakeTail, &mut Transform), Without<SnakeHead>>,
-    windows: Query<&Window>
+    windows: Query<&Window>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
 
     let (mut head, mut head_transform) = head_query.single_mut();
     let old_head_position = head.position;
     if old_head_position.col > 0 && old_head_position.line > 0 {
-        head.position = Position { col: old_head_position.col, line: old_head_position.line - 1 };
+        head = move_head_position(keyboard_input, head);
         head_transform.translation = transform_from_position(&head.position, window_center, 1.0).translation;
 
         let mut next_position = old_head_position;
@@ -77,4 +89,25 @@ pub fn snake_movement_system(
             tail_transform.translation = transform_from_position(&tail.position, window_center, 1.0).translation;
         }
     }
+}
+
+fn move_head_position<'a>(keyboard_input: Res<'a, ButtonInput<KeyCode>>, mut head: Mut<'a, SnakeHead>) -> Mut<'a, SnakeHead> {
+    if keyboard_input.pressed(KeyCode::ArrowLeft) {
+        head.direction = LEFT;
+    } else if keyboard_input.pressed(KeyCode::ArrowRight) {
+        head.direction = RIGHT;
+    } else if keyboard_input.pressed(KeyCode::ArrowUp) {
+        head.direction = UP;
+    } else if keyboard_input.pressed(KeyCode::ArrowDown) {
+        head.direction = DOWN;
+    }
+
+    head.position = match head.direction {
+        LEFT => Position { col: head.position.col - 1, line: head.position.line },
+        RIGHT => Position { col: head.position.col + 1, line: head.position.line },
+        UP => Position { col: head.position.col, line: head.position.line - 1 },
+        DOWN => Position { col: head.position.col, line: head.position.line + 1},
+    };
+
+    return head;
 }
