@@ -3,7 +3,8 @@ use bevy::asset::ron::de::Position;
 use bevy::prelude::{Commands, Image, Res, Resource, Transform, Vec2};
 use bevy::sprite::SpriteBundle;
 use bevy::utils::default;
-
+use rand::prelude::ThreadRng;
+use rand::Rng;
 use crate::images::Images;
 
 #[path = "levels/level1.rs"] mod level1;
@@ -33,10 +34,11 @@ impl Default for LevelMap {
 
 impl LevelMap {
     pub fn draw(&self, mut commands: Commands, images: &Res<Images>, window_center: Vec2) {
+        let mut rng = rand::thread_rng();
         for y in 0..MAP_HEIGHT {
             for x in 0..MAP_WIDTH {
                 commands.spawn(SpriteBundle {
-                    texture: get_image_for_tile(self.grid.get(y).unwrap().get(x).unwrap(), images),
+                    texture: get_image_for_tile(self.grid.get(y).unwrap().get(x).unwrap(), images, &mut rng),
                     transform: transform_from_position(&Position { line: y, col: x }, window_center, 0.0),
                     ..default()
                 });
@@ -68,10 +70,10 @@ pub fn transform_from_position(position: &Position, window_center: Vec2, zindex:
     )
 }
 
-fn get_image_for_tile(tile: &Tile, images: &Res<Images>) -> Handle<Image> {
+fn get_image_for_tile(tile: &Tile, images: &Res<Images>, rng: &mut ThreadRng) -> Handle<Image> {
     return match tile {
-        Tile::WALL => images.wall.clone(),
-        Tile::FLOOR => images.floor.clone(),
+        Tile::WALL => images.wall.get(rng.gen_range(0..8)).unwrap().clone(),
+        Tile::FLOOR => images.floor.get(rng.gen_range(0..8)).unwrap().clone(),
     }
 }
 
