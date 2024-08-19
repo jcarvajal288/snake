@@ -1,12 +1,12 @@
 use bevy::prelude::{Commands, Component, JustifyText, TextBundle};
 use bevy::text::TextStyle;
-use bevy::ui::{PositionType, Style, Val};
+use bevy::ui::{Display, PositionType, Style, Val};
 use bevy::utils::default;
 
 #[derive(Component)]
 pub struct GameOverText;
 
-pub fn show_game_over_text(mut commands: Commands) {
+pub fn spawn_game_over_text(mut commands: Commands) {
     commands.spawn((
         TextBundle::from_section(
         "GAME OVER",
@@ -19,6 +19,7 @@ pub fn show_game_over_text(mut commands: Commands) {
                 position_type: PositionType::Absolute,
                 top: Val::Percent(40.0),
                 left: Val::Percent(17.0),
+                display: Display::None,
                 ..default()
             }),
         GameOverText,

@@ -3,12 +3,13 @@ use bevy::input::ButtonInput;
 use bevy::math::Vec2;
 use bevy::prelude::{Commands, Component, default, Entity, KeyCode, Mut, NextState, Query, Res, ResMut, SpriteBundle, Transform, Window, With, Without};
 use bevy::scene::ron::de::Position;
-
+use bevy::ui::{Display, Style};
 use crate::images::Images;
 use crate::{GameState, level1};
 use crate::apple::{Apple, find_open_position};
 use crate::level_map::{LevelMap, transform_from_position};
 use crate::snake::Direction::{DOWN, LEFT, RIGHT, UP};
+use crate::ui::GameOverText;
 
 #[derive(PartialEq, Copy, Clone)]
 enum Direction {
@@ -127,6 +128,7 @@ pub fn change_direction_system(
 pub fn collision_system(
     mut head_query: Query<&mut SnakeHead>,
     mut tail_query: Query<&mut SnakeTail>,
+    mut game_over_text_query: Query<&mut Style, With<GameOverText>>,
     level_map: Res<LevelMap>,
     mut next_state: ResMut<NextState<GameState>>
 ) {
@@ -134,6 +136,7 @@ pub fn collision_system(
     let tail_segments: Vec<Position> = tail_query.iter().map(|entity| entity.position).collect();
     if !level_map.is_position_walkable(&head.position) || tail_segments.contains(&head.position) {
         next_state.set(GameState::DEFEAT);
+        game_over_text_query.single_mut().display = Display::Flex;
     }
 }
 
