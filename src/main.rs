@@ -11,12 +11,14 @@ use rand::Rng;
 
 use crate::images::{Images, load_images};
 use crate::level_map::LevelMap;
+use crate::ui::show_game_over_text;
 
 mod images;
 mod level_map;
 mod snake;
 #[path = "levels/level1.rs"] mod level1;
 mod apple;
+mod ui;
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum GameState {
@@ -42,6 +44,7 @@ fn main() {
         .add_systems(Startup, (load_images, setup, apple::spawn_apple).chain())
         .add_systems(FixedUpdate, snake::snake_movement_system.run_if(in_state(GameState::RUNNING)))
         .add_systems(Update, (snake::change_direction_system, snake::collision_system, snake::eating_system))
+        .add_systems(Update, show_game_over_text.run_if(in_state(GameState::DEFEAT)))
         .run();
 }
 
