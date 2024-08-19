@@ -9,7 +9,7 @@ use crate::{GameState, level1};
 use crate::apple::{Apple, find_open_position};
 use crate::level_map::{LevelMap, transform_from_position};
 use crate::snake::Direction::{DOWN, LEFT, RIGHT, UP};
-use crate::ui::GameOverText;
+use crate::ui::{GameOverText, ResetText};
 
 #[derive(PartialEq, Copy, Clone)]
 enum Direction {
@@ -129,6 +129,7 @@ pub fn collision_system(
     mut head_query: Query<&mut SnakeHead>,
     mut tail_query: Query<&mut SnakeTail>,
     mut game_over_text_query: Query<&mut Style, With<GameOverText>>,
+    mut reset_text_query: Query<&mut Style, (With<ResetText>, Without<GameOverText>)>,
     level_map: Res<LevelMap>,
     mut next_state: ResMut<NextState<GameState>>
 ) {
@@ -137,6 +138,7 @@ pub fn collision_system(
     if !level_map.is_position_walkable(&head.position) || tail_segments.contains(&head.position) {
         next_state.set(GameState::DEFEAT);
         game_over_text_query.single_mut().display = Display::Flex;
+        reset_text_query.single_mut().display = Display::Flex;
     }
 }
 
@@ -192,6 +194,8 @@ pub fn reset_snake(
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
     let (mut head, mut head_transform) = head_query.single_mut();
     head.position = start;
+    head.current_direction = UP;
+    head.future_direction = UP;
     head_transform.translation = transform_from_position(&start, window_center, 2.0).translation;
     spawn_initial_tail(&mut commands, &images, window_center, start);
 }

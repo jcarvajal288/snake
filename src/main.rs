@@ -4,7 +4,7 @@ use bevy::app::FixedUpdate;
 use bevy::DefaultPlugins;
 use bevy::input::ButtonInput;
 use bevy::math::Vec2;
-use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, DespawnRecursiveExt, Display, Entity, in_state, IntoSystemConfigs, KeyCode, NextState, PluginGroup, Query, Res, ResMut, Startup, States, TextBundle, Time, Transform, Update, Window, With};
+use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, DespawnRecursiveExt, Display, Entity, in_state, IntoSystemConfigs, KeyCode, NextState, PluginGroup, Query, Res, ResMut, Startup, States, TextBundle, Time, Transform, Update, Window, With, Without};
 use bevy::time::Fixed;
 use bevy::ui::Style;
 use bevy::window::{WindowPlugin, WindowResolution};
@@ -14,7 +14,7 @@ use rand::Rng;
 use crate::images::{Images, load_images};
 use crate::level_map::LevelMap;
 use crate::snake::{reset_snake, SnakeHead, SnakeTail};
-use crate::ui::{GameOverText, spawn_game_over_text};
+use crate::ui::{GameOverText, ResetText, spawn_game_over_text};
 
 mod images;
 mod level_map;
@@ -63,6 +63,7 @@ fn reset(
     head_query: Query<(&mut SnakeHead, &mut Transform)>,
     tail_query: Query<Entity, With<SnakeTail>>,
     mut game_over_text_query: Query<&mut Style, With<GameOverText>>,
+    mut reset_text_query: Query<&mut Style, (With<ResetText>, Without<GameOverText>)>,
     windows: Query<&Window>,
     images: Res<Images>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -70,6 +71,7 @@ fn reset(
 ) {
     if keyboard_input.just_pressed(KeyCode::KeyR) {
         game_over_text_query.single_mut().display = Display::None;
+        reset_text_query.single_mut().display = Display::None;
         reset_snake(commands, head_query, tail_query, windows, images);
         next_state.set(GameState::RUNNING);
     }
