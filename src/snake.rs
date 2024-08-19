@@ -5,7 +5,7 @@ use bevy::prelude::{Commands, Component, default, Entity, KeyCode, Mut, NextStat
 use bevy::scene::ron::de::Position;
 use bevy::ui::{Display, Style};
 use crate::images::Images;
-use crate::{GameState, level1};
+use crate::{GameState, levels};
 use crate::apple::{Apple, find_open_position};
 use crate::level_map::{LevelMap, transform_from_position};
 use crate::snake::Direction::{DOWN, LEFT, RIGHT, UP};
@@ -46,14 +46,14 @@ pub fn initial_snake_tail(position: Position) -> SnakeTail {
 }
 
 pub fn spawn_snake(mut commands: &mut Commands, images: &Res<Images>, window_center: Vec2) {
-    let start = level1::STARTING_POSITION;
+    let start = levels::STARTING_POSITION;
     commands.spawn((
         SpriteBundle {
             texture: images.snake_head.clone(),
             transform: transform_from_position(&start, window_center, 2.0),
             ..default()
         },
-        initial_snake_head(level1::STARTING_POSITION)
+        initial_snake_head(levels::STARTING_POSITION)
     ));
     spawn_initial_tail(commands, images, window_center, start);
 }
@@ -190,7 +190,7 @@ pub fn reset_snake(
         commands.entity(entity).despawn();
     }
 
-    let start = level1::STARTING_POSITION;
+    let start = levels::STARTING_POSITION;
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
     let (mut head, mut head_transform) = head_query.single_mut();
     head.position = start;

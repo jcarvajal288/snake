@@ -13,13 +13,14 @@ use rand::Rng;
 
 use crate::images::{Images, load_images};
 use crate::level_map::LevelMap;
+use crate::levels::{LEVEL_2, LEVEL_3};
 use crate::snake::{reset_snake, SnakeHead, SnakeTail};
 use crate::ui::{GameOverText, ResetText, spawn_game_over_text};
 
 mod images;
 mod level_map;
 mod snake;
-#[path = "levels/level1.rs"] mod level1;
+mod levels;
 mod apple;
 mod ui;
 
@@ -42,7 +43,7 @@ fn main() {
         .add_plugins(EmbeddedAssetPlugin::default())
         .insert_resource(Time::<Fixed>::from_duration(Duration::from_millis(300)))
         .insert_resource(Images::default())
-        .insert_resource(level_map::load_level_1())
+        .insert_resource(level_map::load_level(LEVEL_3))
         .init_state::<GameState>()
         .add_systems(Startup, (load_images, setup, apple::spawn_apple, spawn_game_over_text).chain())
         .add_systems(FixedUpdate, snake::snake_movement_system.run_if(in_state(GameState::RUNNING)))

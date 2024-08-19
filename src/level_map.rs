@@ -6,8 +6,7 @@ use bevy::utils::default;
 use rand::prelude::ThreadRng;
 use rand::Rng;
 use crate::images::Images;
-
-#[path = "levels/level1.rs"] mod level1;
+use crate::levels::LEVEL_1;
 
 const MAP_WIDTH: usize = 21;
 const MAP_HEIGHT: usize = 21;
@@ -55,9 +54,9 @@ impl LevelMap {
     }
 }
 
-pub fn load_level_1() -> LevelMap {
+pub fn load_level(level: &str) -> LevelMap {
     return LevelMap {
-        grid: read_level_tiles(level1::MAP_DATA),
+        grid: read_level_tiles(level),
     }
 }
 
