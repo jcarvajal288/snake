@@ -1,5 +1,4 @@
-use bevy::math::Vec2;
-use bevy::prelude::{Commands, Component, JustifyText, Query, TextBundle, Window};
+use bevy::prelude::{Commands, Component, JustifyText, TextBundle};
 use bevy::text::TextStyle;
 use bevy::ui::{PositionType, Style, Val};
 use bevy::utils::default;

@@ -2,8 +2,9 @@ use std::time::Duration;
 
 use bevy::app::FixedUpdate;
 use bevy::DefaultPlugins;
+use bevy::input::ButtonInput;
 use bevy::math::Vec2;
-use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, in_state, IntoSystemConfigs, PluginGroup, Query, Res, Startup, States, Time, Update, Window};
+use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, DespawnRecursiveExt, Entity, in_state, IntoSystemConfigs, KeyCode, NextState, PluginGroup, Query, Res, ResMut, Startup, States, TextBundle, Time, Transform, Update, Window, With};
 use bevy::time::Fixed;
 use bevy::window::{WindowPlugin, WindowResolution};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -11,7 +12,8 @@ use rand::Rng;
 
 use crate::images::{Images, load_images};
 use crate::level_map::LevelMap;
-use crate::ui::show_game_over_text;
+use crate::snake::{reset_snake, SnakeHead, SnakeTail};
+use crate::ui::{GameOverText, show_game_over_text};
 
 mod images;
 mod level_map;
@@ -44,7 +46,7 @@ fn main() {
         .add_systems(Startup, (load_images, setup, apple::spawn_apple).chain())
         .add_systems(FixedUpdate, snake::snake_movement_system.run_if(in_state(GameState::RUNNING)))
         .add_systems(Update, (snake::change_direction_system, snake::collision_system, snake::eating_system))
-        .add_systems(Update, show_game_over_text.run_if(in_state(GameState::DEFEAT)))
+        .add_systems(Update, (show_game_over_text, reset).chain().run_if(in_state(GameState::DEFEAT)))
         .run();
 }
 
@@ -53,5 +55,24 @@ fn setup(mut commands: Commands, level_map: Res<LevelMap>, images: Res<Images>, 
     let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
     snake::spawn_snake(&mut commands, &images, window_center);
     level_map.draw(commands, &images, window_center);
+}
+
+fn reset(
+    mut commands: Commands,
+    head_query: Query<(&mut SnakeHead, &mut Transform)>,
+    tail_query: Query<Entity, With<SnakeTail>>,
+    game_over_text_query: Query<Entity, With<GameOverText>>,
+    windows: Query<&Window>,
+    images: Res<Images>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if keyboard_input.just_pressed(KeyCode::KeyR) {
+        for entity in game_over_text_query.iter() {
+            commands.entity(entity).despawn();
+        }
+        reset_snake(commands, head_query, tail_query, windows, images);
+        next_state.set(GameState::RUNNING);
+    }
 }
 

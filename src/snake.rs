@@ -1,7 +1,7 @@
 use std::cmp::PartialEq;
 use bevy::input::ButtonInput;
 use bevy::math::Vec2;
-use bevy::prelude::{Commands, Component, default, KeyCode, Mut, NextState, Query, Res, ResMut, SpriteBundle, Transform, Window, Without};
+use bevy::prelude::{Commands, Component, default, Entity, KeyCode, Mut, NextState, Query, Res, ResMut, SpriteBundle, Transform, Window, With, Without};
 use bevy::scene::ron::de::Position;
 
 use crate::images::Images;
@@ -46,10 +46,6 @@ pub fn initial_snake_tail(position: Position) -> SnakeTail {
 
 pub fn spawn_snake(mut commands: &mut Commands, images: &Res<Images>, window_center: Vec2) {
     let start = level1::STARTING_POSITION;
-    let snake_tail = [
-        initial_snake_tail(Position { col: start.col, line: start.line + 1 }),
-        initial_snake_tail(Position { col: start.col, line: start.line + 2 }),
-    ];
     commands.spawn((
         SpriteBundle {
             texture: images.snake_head.clone(),
@@ -58,6 +54,14 @@ pub fn spawn_snake(mut commands: &mut Commands, images: &Res<Images>, window_cen
         },
         initial_snake_head(level1::STARTING_POSITION)
     ));
+    spawn_initial_tail(commands, images, window_center, start);
+}
+
+fn spawn_initial_tail(mut commands: &mut Commands, images: &Res<Images>, window_center: Vec2, start: Position) {
+    let snake_tail = [
+        initial_snake_tail(Position { col: start.col, line: start.line + 1 }),
+        initial_snake_tail(Position { col: start.col, line: start.line + 2 }),
+    ];
     let snake_tail_entities = snake_tail.map(|segment| {
         return commands.spawn((
             SpriteBundle {
@@ -168,4 +172,23 @@ pub fn eating_system(
             )).id();
         });
     }
+}
+
+pub fn reset_snake(
+    mut commands: Commands,
+    mut head_query: Query<(&mut SnakeHead, &mut Transform)>,
+    mut tail_query: Query<Entity, With<SnakeTail>>,
+    windows: Query<&Window>,
+    images: Res<Images>,
+) {
+    for entity in tail_query.iter() {
+        commands.entity(entity).despawn();
+    }
+
+    let start = level1::STARTING_POSITION;
+    let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
+    let (mut head, mut head_transform) = head_query.single_mut();
+    head.position = start;
+    head_transform.translation = transform_from_position(&start, window_center, 2.0).translation;
+    spawn_initial_tail(&mut commands, &images, window_center, start);
 }
