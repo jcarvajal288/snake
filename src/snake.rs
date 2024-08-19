@@ -10,7 +10,7 @@ use crate::apple::{Apple, find_open_position};
 use crate::level_map::{LevelMap, transform_from_position};
 use crate::snake::Direction::{DOWN, LEFT, RIGHT, UP};
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 enum Direction {
     LEFT,
     RIGHT,
@@ -21,13 +21,15 @@ enum Direction {
 #[derive(Component)]
 pub struct SnakeHead {
     pub position: Position,
-    pub direction: Direction,
+    pub future_direction: Direction,
+    pub current_direction: Direction,
 }
 
 pub fn initial_snake_head(position: Position) -> SnakeHead {
     return SnakeHead {
         position,
-        direction: UP,
+        future_direction: UP,
+        current_direction: UP,
     }
 }
 
@@ -79,6 +81,7 @@ pub fn snake_movement_system(
     let old_head_position = head.position;
     if old_head_position.col > 0 && old_head_position.line > 0 {
         head = move_head_position(head);
+        head.current_direction = head.future_direction;
         head_transform.translation = transform_from_position(&head.position, window_center, 2.0).translation;
 
         let mut next_position = old_head_position;
@@ -92,7 +95,7 @@ pub fn snake_movement_system(
 }
 
 fn move_head_position(mut head: Mut<SnakeHead>) -> Mut<SnakeHead> {
-    head.position = match head.direction {
+    head.position = match head.future_direction {
         LEFT => Position { col: head.position.col - 1, line: head.position.line },
         RIGHT => Position { col: head.position.col + 1, line: head.position.line },
         UP => Position { col: head.position.col, line: head.position.line - 1 },
@@ -106,15 +109,14 @@ pub fn change_direction_system(
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     let mut head = head_query.single_mut();
-    let current_direction = &head.direction;
-    if keyboard_input.pressed(KeyCode::ArrowLeft) && !matches!(current_direction, RIGHT) {
-        head.direction = LEFT;
-    } else if keyboard_input.pressed(KeyCode::ArrowRight) && !matches!(current_direction, LEFT) {
-        head.direction = RIGHT;
-    } else if keyboard_input.pressed(KeyCode::ArrowUp) && !matches!(current_direction, DOWN) {
-        head.direction = UP;
-    } else if keyboard_input.pressed(KeyCode::ArrowDown) && !matches!(current_direction, UP) {
-        head.direction = DOWN;
+    if keyboard_input.pressed(KeyCode::ArrowLeft) && !matches!(head.current_direction, RIGHT) {
+        head.future_direction = LEFT;
+    } else if keyboard_input.pressed(KeyCode::ArrowRight) && !matches!(head.current_direction, LEFT) {
+        head.future_direction = RIGHT;
+    } else if keyboard_input.pressed(KeyCode::ArrowUp) && !matches!(head.current_direction, DOWN) {
+        head.future_direction = UP;
+    } else if keyboard_input.pressed(KeyCode::ArrowDown) && !matches!(head.current_direction, UP) {
+        head.future_direction = DOWN;
     }
 }
 
