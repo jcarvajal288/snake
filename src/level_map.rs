@@ -8,8 +8,8 @@ use crate::images::Images;
 
 #[path = "levels/level1.rs"] mod level1;
 
-const MAP_WIDTH: usize = 23;
-const MAP_HEIGHT: usize = 23;
+const MAP_WIDTH: usize = 21;
+const MAP_HEIGHT: usize = 21;
 pub const TILE_SIZE: f32 = 32.0;
 
 #[derive(Clone)]

@@ -19,7 +19,7 @@ pub fn show_game_over_text(mut commands: Commands) {
             .with_style(Style {
                 position_type: PositionType::Absolute,
                 top: Val::Percent(40.0),
-                left: Val::Percent(20.0),
+                left: Val::Percent(17.0),
                 ..default()
             }),
         GameOverText,

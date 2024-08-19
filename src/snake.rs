@@ -51,7 +51,7 @@ pub fn spawn_snake(mut commands: &mut Commands, images: &Res<Images>, window_cen
     commands.spawn((
         SpriteBundle {
             texture: images.snake_head.clone(),
-            transform: transform_from_position(&start, window_center, 1.0),
+            transform: transform_from_position(&start, window_center, 2.0),
             ..default()
         },
         initial_snake_head(level1::STARTING_POSITION)
@@ -79,7 +79,7 @@ pub fn snake_movement_system(
     let old_head_position = head.position;
     if old_head_position.col > 0 && old_head_position.line > 0 {
         head = move_head_position(head);
-        head_transform.translation = transform_from_position(&head.position, window_center, 1.0).translation;
+        head_transform.translation = transform_from_position(&head.position, window_center, 2.0).translation;
 
         let mut next_position = old_head_position;
         for mut tail_segment in &mut tail_query {
