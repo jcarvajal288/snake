@@ -3,7 +3,7 @@ use bevy::prelude::{Commands, Entity, NextState, Query, Res, ResMut, Transform, 
 use crate::GameState;
 use crate::images::Images;
 use crate::level_map::{LevelMap, load_level, MapTile};
-use crate::levels::{LEVEL_1_SELECT, LEVEL_1, LEVEL_2_SELECT, LEVEL_2, LEVEL_3, LEVEL_3_SELECT};
+use crate::levels::{LEVEL_1_SELECT, LEVEL_1, LEVEL_2_SELECT, LEVEL_2, LEVEL_3, LEVEL_3_SELECT, LEVEL_4_SELECT, LEVEL_4, LEVEL_5_SELECT, LEVEL_5};
 use crate::snake::{reset_snake, SnakeHead, SnakeTail};
 
 pub fn level_select_system(
@@ -24,6 +24,10 @@ pub fn level_select_system(
         LEVEL_2
     } else if head.position == LEVEL_3_SELECT {
         LEVEL_3
+    } else if head.position == LEVEL_4_SELECT {
+        LEVEL_4
+    } else if head.position == LEVEL_5_SELECT {
+        LEVEL_5
     } else {
         "NONE"
     };
