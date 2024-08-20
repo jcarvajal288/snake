@@ -4,13 +4,13 @@ use bevy::app::FixedUpdate;
 use bevy::DefaultPlugins;
 use bevy::input::ButtonInput;
 use bevy::math::Vec2;
-use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, DespawnRecursiveExt, Display, Entity, in_state, IntoSystemConfigs, KeyCode, NextState, not, PluginGroup, Query, Res, ResMut, Startup, States, TextBundle, Time, Transform, Update, Window, With, Without};
+use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, DespawnRecursiveExt, Display, Entity, in_state, IntoSystemConfigs, KeyCode, NextState, not, OnEnter, PluginGroup, Query, Res, ResMut, Startup, States, TextBundle, Time, Transform, Update, Window, With, Without};
 use bevy::time::Fixed;
 use bevy::ui::Style;
 use bevy::window::{WindowPlugin, WindowResolution};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use rand::Rng;
-
+use crate::apple::{Apple, move_apple_system, spawn_apple};
 use crate::images::{Images, load_images};
 use crate::level_map::LevelMap;
 use crate::menu::level_select_system;
@@ -47,18 +47,14 @@ fn main() {
         .insert_resource(Images::default())
         .insert_resource(level_map::load_level(levels::MENU))
         .init_state::<GameState>()
-        .add_systems(Startup, (
-            load_images,
-            setup,
-            apple::spawn_apple,
-            spawn_game_over_text
-        ).chain())
+        .add_systems(Startup, (load_images, setup, spawn_game_over_text).chain())
+        .add_systems(OnEnter(GameState::RUNNING), spawn_apple)
         .add_systems(FixedUpdate,
                      snake::snake_movement_system
                          .run_if(not(in_state(GameState::DEFEAT)))
         )
         .add_systems(Update, level_select_system.run_if(in_state(GameState::MENU)))
-        .add_systems(Update, (snake::change_direction_system, snake::collision_system, snake::eating_system))
+        .add_systems(Update, (snake::change_direction_system, snake::collision_system, snake::eating_system.run_if(in_state(GameState::RUNNING))))
         .add_systems(Update, reset.run_if(in_state(GameState::DEFEAT)))
         .run();
 }
@@ -74,6 +70,7 @@ fn reset(
     mut commands: Commands,
     head_query: Query<(&mut SnakeHead, &mut Transform)>,
     tail_query: Query<Entity, With<SnakeTail>>,
+    apple_query: Query<Entity, With<Apple>>,
     mut game_over_text_query: Query<&mut Style, With<GameOverText>>,
     mut reset_text_query: Query<&mut Style, (With<ResetText>, Without<GameOverText>)>,
     windows: Query<&Window>,
@@ -82,6 +79,9 @@ fn reset(
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::KeyR) {
+        for entity in apple_query.iter() {
+            commands.entity(entity).despawn();
+        }
         game_over_text_query.single_mut().display = Display::None;
         reset_text_query.single_mut().display = Display::None;
         reset_snake(commands, head_query, tail_query, windows, images);

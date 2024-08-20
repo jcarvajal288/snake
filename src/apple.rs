@@ -1,6 +1,6 @@
 use bevy::asset::ron::de::Position;
 use bevy::math::Vec2;
-use bevy::prelude::{Commands, Component, default, Query, Res, SpriteBundle, Window};
+use bevy::prelude::{Commands, Component, default, Query, Res, SpriteBundle, Transform, Window, Without};
 use rand::Rng;
 
 use crate::images::Images;
@@ -56,4 +56,18 @@ pub fn find_open_position(level_map: Res<LevelMap>, head_query: &mut Query<&mut 
         col: apple_position.col,
         line: apple_position.line
     }
+}
+
+pub fn move_apple_system(
+    level_map: Res<LevelMap>,
+    windows: Query<&Window>,
+    mut head_query: Query<&mut SnakeHead>,
+    tail_query: Query<&mut SnakeTail>,
+    mut apple_query: Query<(&mut Apple, &mut Transform), Without<SnakeHead>>,
+) {
+    let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
+    let new_apple_position = find_open_position(level_map, &mut head_query, &tail_query);
+    let (mut apple, mut apple_transform) = apple_query.single_mut();
+    apple_transform.translation = transform_from_position(&new_apple_position, window_center, 0.5).translation;
+    apple.position = new_apple_position;
 }
