@@ -8,6 +8,7 @@ pub struct Images {
     pub snake_head: Handle<Image>,
     pub snake_tail: Handle<Image>,
     pub apple: Handle<Image>,
+    pub stairs: Handle<Image>,
 }
 
 impl Default for Images {
@@ -18,6 +19,7 @@ impl Default for Images {
             snake_head: Handle::default(),
             snake_tail: Handle::default(),
             apple: Handle::default(),
+            stairs: Handle::default(),
         }
     }
 }
@@ -46,4 +48,5 @@ pub fn load_images(mut images: ResMut<Images>, asset_server: Res<AssetServer>) {
     images.snake_head = asset_server.load("embedded://images/marble_wall_11.png");
     images.snake_tail = asset_server.load("embedded://images/crystal_wall_lightcyan.png");
     images.apple = asset_server.load("embedded://images/apple.png");
+    images.stairs = asset_server.load("embedded://images/stone_stairs_down.png");
 }

@@ -4,7 +4,7 @@ use bevy::app::FixedUpdate;
 use bevy::DefaultPlugins;
 use bevy::input::ButtonInput;
 use bevy::math::Vec2;
-use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, DespawnRecursiveExt, Display, Entity, in_state, IntoSystemConfigs, KeyCode, NextState, PluginGroup, Query, Res, ResMut, Startup, States, TextBundle, Time, Transform, Update, Window, With, Without};
+use bevy::prelude::{App, AppExtStates, BuildChildren, Camera2dBundle, Commands, default, DespawnRecursiveExt, Display, Entity, in_state, IntoSystemConfigs, KeyCode, NextState, not, PluginGroup, Query, Res, ResMut, Startup, States, TextBundle, Time, Transform, Update, Window, With, Without};
 use bevy::time::Fixed;
 use bevy::ui::Style;
 use bevy::window::{WindowPlugin, WindowResolution};
@@ -13,7 +13,7 @@ use rand::Rng;
 
 use crate::images::{Images, load_images};
 use crate::level_map::LevelMap;
-use crate::levels::{LEVEL_2, LEVEL_3};
+use crate::menu::level_select_system;
 use crate::snake::{reset_snake, SnakeHead, SnakeTail};
 use crate::ui::{GameOverText, ResetText, spawn_game_over_text};
 
@@ -23,10 +23,12 @@ mod snake;
 mod levels;
 mod apple;
 mod ui;
+mod menu;
 
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 enum GameState {
     #[default]
+    MENU,
     RUNNING,
     DEFEAT,
 }
@@ -43,10 +45,19 @@ fn main() {
         .add_plugins(EmbeddedAssetPlugin::default())
         .insert_resource(Time::<Fixed>::from_duration(Duration::from_millis(300)))
         .insert_resource(Images::default())
-        .insert_resource(level_map::load_level(LEVEL_3))
+        .insert_resource(level_map::load_level(levels::MENU))
         .init_state::<GameState>()
-        .add_systems(Startup, (load_images, setup, apple::spawn_apple, spawn_game_over_text).chain())
-        .add_systems(FixedUpdate, snake::snake_movement_system.run_if(in_state(GameState::RUNNING)))
+        .add_systems(Startup, (
+            load_images,
+            setup,
+            apple::spawn_apple,
+            spawn_game_over_text
+        ).chain())
+        .add_systems(FixedUpdate,
+                     snake::snake_movement_system
+                         .run_if(not(in_state(GameState::DEFEAT)))
+        )
+        .add_systems(Update, level_select_system.run_if(in_state(GameState::MENU)))
         .add_systems(Update, (snake::change_direction_system, snake::collision_system, snake::eating_system))
         .add_systems(Update, reset.run_if(in_state(GameState::DEFEAT)))
         .run();
