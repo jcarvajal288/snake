@@ -12,7 +12,8 @@ use bevy_embedded_assets::EmbeddedAssetPlugin;
 use rand::Rng;
 use crate::apple::{Apple, move_apple_system, spawn_apple};
 use crate::images::{Images, load_images};
-use crate::level_map::LevelMap;
+use crate::level_map::{LevelMap, load_level, MapTile};
+use crate::levels::MENU;
 use crate::menu::level_select_system;
 use crate::snake::{reset_snake, SnakeHead, SnakeTail};
 use crate::ui::{GameOverText, ResetText, spawn_game_over_text};
@@ -77,15 +78,23 @@ fn reset(
     images: Res<Images>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
+    mut level_map: ResMut<LevelMap>,
+    mut tile_query: Query<Entity, With<MapTile>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::KeyR) {
+        let window_center = Vec2::new(windows.single().resolution.width() / 2., windows.single().resolution.height() / 2.);
         for entity in apple_query.iter() {
+            commands.entity(entity).despawn();
+        }
+        for entity in tile_query.iter() {
             commands.entity(entity).despawn();
         }
         game_over_text_query.single_mut().display = Display::None;
         reset_text_query.single_mut().display = Display::None;
-        reset_snake(commands, head_query, tail_query, windows, images);
-        next_state.set(GameState::RUNNING);
+        level_map.grid = load_level(MENU).grid;
+        let commands2 = level_map.draw(commands, &images, window_center);
+        reset_snake(commands2, head_query, tail_query, windows, images);
+        next_state.set(GameState::MENU);
     }
 }
 
