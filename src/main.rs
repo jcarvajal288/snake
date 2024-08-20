@@ -10,7 +10,7 @@ use bevy::ui::Style;
 use bevy::window::{WindowPlugin, WindowResolution};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use rand::Rng;
-use crate::apple::{Apple, move_apple_system, spawn_apple};
+use crate::apple::{Apple, spawn_apple};
 use crate::images::{Images, load_images};
 use crate::level_map::{LevelMap, load_level, MapTile};
 use crate::levels::MENU;

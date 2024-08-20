@@ -2,24 +2,24 @@
 use bevy::asset::ron::de::Position;
 
 pub const LEVEL_1_SELECT: Position = Position { line: 6, col: 10 };
-pub const LEVEL_2_SELECT: Position = Position { line: 6, col: 3 };
-pub const LEVEL_3_SELECT: Position = Position { line: 6, col: 17 };
-pub const LEVEL_4_SELECT: Position = Position { line: 4, col: 6 };
-pub const LEVEL_5_SELECT: Position = Position { line: 4, col: 14 };
+pub const LEVEL_2_SELECT: Position = Position { line: 9, col: 7 };
+pub const LEVEL_3_SELECT: Position = Position { line: 9, col: 13 };
+pub const LEVEL_4_SELECT: Position = Position { line: 12, col: 4 };
+pub const LEVEL_5_SELECT: Position = Position { line: 12, col: 16 };
 
 pub const MENU: &str = "#####################\n\
                         #...................#\n\
                         #...................#\n\
                         #...................#\n\
-                        #.....>.......>.....#\n\
-                        #...................#\n\
-                        #..>......>......>..#\n\
                         #...................#\n\
                         #...................#\n\
+                        #.........>.........#\n\
                         #...................#\n\
                         #...................#\n\
+                        #......>.....>......#\n\
                         #...................#\n\
                         #...................#\n\
+                        #...>...........>...#\n\
                         #...................#\n\
                         #...................#\n\
                         #...................#\n\
@@ -83,7 +83,7 @@ pub const LEVEL_3: &str = "#####################\n\
                            #......#.....#......#\n\
                            #.......#...#.......#\n\
                            #...................#\n\
-                           #...................#\n\
+                           #.#######...#######.#\n\
                            #...................#\n\
                            #.......#...#.......#\n\
                            #......#.....#......#\n\
